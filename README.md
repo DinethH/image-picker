@@ -1,38 +1,25 @@
 # \<image-picker\>
 
+# USE:
 
+## Add the following inside <head>
 
-## Install the Polymer-CLI
+<base href="https://image-picker-dinethh.c9users.io/" />
+<script src="/bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+<link rel="import" href="/src/image-picker/image-picker.html">
 
-First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
+## Place the following tag where you need to embbed the application
 
-## Viewing Your Application
+<image-picker></image-picker>
 
-```
-$ polymer serve
-```
+## Copy the following folders to your project folder
 
-## Building Your Application
+/bower_components
+/src
 
-```
-$ polymer build
-```
+## Update /src/db.php 
 
-This will create a `build/` folder with `bundled/` and `unbundled/` sub-folders
-containing a bundled (Vulcanized) and unbundled builds, both run through HTML,
-CSS, and JS optimizers.
+# Changes made to the SQL
 
-You can serve the built versions by giving `polymer serve` a folder to serve
-from:
+## get-categories.php [GROUP BY bsc.id => GROUP BY bc.id]
 
-```
-$ polymer serve build/bundled
-```
-
-## Running Tests
-
-```
-$ polymer test
-```
-
-Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
