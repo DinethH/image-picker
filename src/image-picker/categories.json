@@ -1,0 +1,17 @@
+[
+  {
+    "categoryid": "001",
+    "name": "Category One",
+    "englishname": "English Name One"
+  },
+  {
+    "categoryid": "002",
+    "name": "Category Two",
+    "englishname": "English Name Two"
+  },
+  {
+    "categoryid": "003",
+    "name": "Category Three",
+    "englishname": "English Name Three"
+  }
+]

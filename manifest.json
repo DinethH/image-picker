@@ -1,0 +1,6 @@
+{
+  "name": "image-picker",
+  "short_name": "image-picker",
+  "start_url": "/",
+  "display": "standalone"
+}

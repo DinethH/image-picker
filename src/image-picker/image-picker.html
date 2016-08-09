@@ -1,0 +1,134 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+
+<dom-module id="image-picker">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      iron-selector {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .item {
+        margin: 10px;
+      }
+      .iron-selected {
+        opacity: 0.5;
+      }
+    </style>
+
+    <!-- url$="get-categories.php" -->
+    <iron-ajax
+      auto
+      url="categories.json"
+      handle-as="json"
+      last-response="{{categories}}"></iron-ajax>
+
+    <h2>{{name}} ({{categoryid}})</h2>
+    <h1>{{englishname}}</h1>
+
+    <hr>
+
+    <!-- url$="get-products.php?categoryid={{categoryid}}" -->
+    <iron-ajax
+      auto
+      url="products.json"
+      handle-as="json"
+      last-response="{{ajaxResponse}}"></iron-ajax>
+
+
+    <iron-selector id="categories" multi selectedValues="{{selectedValues}}" attr-for-selected="name">
+
+      <template is="dom-repeat" items="[[ajaxResponse]]">
+        <div class="item" name="[[item.shopbikeid]]">
+          <img src="img.jpg">
+          <div>[[item.title]]</div>
+        </div>
+      </template>
+
+
+    </iron-selector>
+
+    <paper-button raised on-tap="continue">Continue</paper-button>
+
+
+    <iron-ajax
+      id="update"
+      url="https://test-ground-bootstrap-dinethh.c9users.io/test.php?picks=%22454%22"
+      handle-as="json"
+      last-response="{{updateResponse}}"></iron-ajax>
+
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'image-picker',
+
+      properties: {
+        "name": String,
+        "categoryid": Number,
+        "englishname": String,
+        "categories": {
+          observer: '_categoriesChanged'
+        },
+        "categoryCounter": {
+          type: Number,
+          value: 0
+        },
+        "ajaxResponse": {
+          observer: '_ajaxResponseChanged'
+        },
+        "picks": {
+          type: Object,
+          value: Object
+        },
+        updateResponse: {
+          observer: '_updateResponseChanged'
+        }
+      },
+      _updateResponseChanged: function () {
+        console.log(this.updateResponse);
+      },
+      _categoriesChanged: function () {
+        this.name = this.categories[0].name;
+        this.categoryid = this.categories[0].categoryid;
+        this.englishname = this.categories[0].englishname;
+      },
+
+      _ajaxResponseChanged: function () {
+
+        for (let res in this.ajaxResponse) {
+          let shopbikeid = this.ajaxResponse[res].shopbikeid;
+          this.picks[shopbikeid] = -1  ;
+        }
+      },
+
+      continue: function () {
+        if (this.categoryCounter < this.categories.length - 1) {
+
+
+          let selectedVals = this.$.categories.selectedValues;
+          for (let v in selectedVals) {
+            let p = selectedVals[v];
+            this.picks[p] = 1;
+          }
+
+          this.$.update.generateRequest();
+
+          let categoryCounter = this.categoryCounter += 1;
+          this.name = this.categories[categoryCounter].name;
+          this.categoryid = this.categories[categoryCounter].categoryid;
+          this.englishname = this.categories[categoryCounter].englishname;
+          console.log(this.$.categories.selectedValues);
+          console.log(this.picks);
+        }
+      }
+    });
+  </script>
+</dom-module>
