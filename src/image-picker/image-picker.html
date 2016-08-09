@@ -16,10 +16,49 @@
       }
       .item {
         margin: 10px;
+        box-shadow: 1px 2px 8px #ccc;
+        transition: opacity 0.3s ease-in-out;
       }
       .iron-selected {
         opacity: 0.5;
+        transition: opacity 0.3s ease-in-out;
       }
+      
+      h1, h2, #continueButton {
+        text-transform: capitalize;
+        font-family: sans-serif;
+      }
+      .title {
+        padding: 10px;
+        font-family: sans-serif;
+      }
+      .title a {
+        text-decoration: none;
+        color: #666;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        background: orangered;
+      }
+      
+      #continueButton {
+        margin-left: 10px;
+      }
+      .loader {
+        height: 100vh;
+        width: 100vw;
+        background: rgba(255, 255, 255, 0.8);
+        position: absolute;
+        top: 0;
+        left: 0; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;        
+      }
+      
     </style>
 
     <!-- url$="get-categories.php" -->
@@ -46,8 +85,10 @@
 
       <template is="dom-repeat" items="[[ajaxResponse]]">
         <div class="item" name="[[item.shopcategoryid]]">
-          <img src="img.jpg">
-          <div>[[item.title]]</div>
+          <img src="http://www.cykelvalg.dk/products/{{item.shopbikeid}}.jpg">
+          <div class="title">
+            <a target="_blank" href="{{item.url}}">[[item.title]]</a>
+          </div>
         </div>
       </template>
 
@@ -55,6 +96,12 @@
     </iron-selector>
 
     <paper-button id="continueButton" raised on-tap="continue">Continue</paper-button>
+    
+    <div hidden$="{{!loading}}" class="loader">
+      ((loading))
+    </div>
+    
+    
 
 
     <iron-ajax
@@ -62,6 +109,7 @@
       url="/src/image-picker/update-product.php?picks={{picksSerialized}}"
       handle-as="json"
       on-response="updateResponse"
+      loading="{{loading}}"
       last-response="{{updateResponseJSON}}"></iron-ajax>
 
   </template>
@@ -76,6 +124,10 @@
         "categoryid": Number,
         "englishname": String,
         "picksSerialized": String,
+        "loading": {
+          type: Boolean,
+          value: false
+        },
         "categories": {
           observer: '_categoriesChanged'
         },
@@ -99,6 +151,7 @@
         this.$.categories.selectedValues = null;
         
         this.picks = [];
+        
         
         //console.log(this.updateResponseJSON);     
         
