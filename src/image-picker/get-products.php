@@ -1,7 +1,7 @@
 <?php
-  include_once ('json-out.php');
+  include_once ('db.php');
 
-  $categoryid = $_REQUES['categoryid'];
+  $categoryid = $_REQUEST['categoryid'];
 
   $sql = "SELECT bc.id AS categoryid, bsc.id AS shopcategoryid, bsc.url, bsc.title, bsc.translation, bscp.shopbikeid AS shopbikeid
       FROM bd_categories bc JOIN bd_shopcategories bsc ON bc.id = bsc.categoryid JOIN bd_shopcategoriesproducts bscp ON bsc.id = bscp.shopcategoryid
@@ -14,3 +14,4 @@
   $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   jsonOut($rows);
+

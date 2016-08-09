@@ -25,7 +25,7 @@
     <!-- url$="get-categories.php" -->
     <iron-ajax
       auto
-      url="categories.json"
+      url="/src/image-picker/get-categories.php"
       handle-as="json"
       last-response="{{categories}}"></iron-ajax>
 
@@ -37,7 +37,7 @@
     <!-- url$="get-products.php?categoryid={{categoryid}}" -->
     <iron-ajax
       auto
-      url="products.json"
+      url="/src/image-picker/get-products.php?categoryid={{categoryid}}"
       handle-as="json"
       last-response="{{ajaxResponse}}"></iron-ajax>
 
@@ -45,7 +45,7 @@
     <iron-selector id="categories" multi selectedValues="{{selectedValues}}" attr-for-selected="name">
 
       <template is="dom-repeat" items="[[ajaxResponse]]">
-        <div class="item" name="[[item.shopbikeid]]">
+        <div class="item" name="[[item.shopcategoryid]]">
           <img src="img.jpg">
           <div>[[item.title]]</div>
         </div>
@@ -54,14 +54,15 @@
 
     </iron-selector>
 
-    <paper-button raised on-tap="continue">Continue</paper-button>
+    <paper-button id="continueButton" raised on-tap="continue">Continue</paper-button>
 
 
     <iron-ajax
       id="update"
-      url="https://test-ground-bootstrap-dinethh.c9users.io/test.php?picks=%22454%22"
+      url="/src/image-picker/update-product.php?picks={{picksSerialized}}"
       handle-as="json"
-      last-response="{{updateResponse}}"></iron-ajax>
+      on-response="updateResponse"
+      last-response="{{updateResponseJSON}}"></iron-ajax>
 
   </template>
 
@@ -74,6 +75,7 @@
         "name": String,
         "categoryid": Number,
         "englishname": String,
+        "picksSerialized": String,
         "categories": {
           observer: '_categoriesChanged'
         },
@@ -85,48 +87,89 @@
           observer: '_ajaxResponseChanged'
         },
         "picks": {
-          type: Object,
-          value: Object
+          type: Array,
+          value: []
         },
-        updateResponse: {
-          observer: '_updateResponseChanged'
+        "updateResponseJSON": {
+          type: Object,
+          observer: '_updateResponseJSONChanged'
         }
       },
-      _updateResponseChanged: function () {
-        console.log(this.updateResponse);
-      },
-      _categoriesChanged: function () {
-        this.name = this.categories[0].name;
-        this.categoryid = this.categories[0].categoryid;
-        this.englishname = this.categories[0].englishname;
-      },
+      _updateResponseJSONChanged: function () {
+        this.$.categories.selectedValues = null;
+        
+        this.picks = [];
+        
+        //console.log(this.updateResponseJSON);     
+        
+        
 
-      _ajaxResponseChanged: function () {
-
-        for (let res in this.ajaxResponse) {
-          let shopbikeid = this.ajaxResponse[res].shopbikeid;
-          this.picks[shopbikeid] = -1  ;
-        }
-      },
-
-      continue: function () {
-        if (this.categoryCounter < this.categories.length - 1) {
-
-
-          let selectedVals = this.$.categories.selectedValues;
-          for (let v in selectedVals) {
-            let p = selectedVals[v];
-            this.picks[p] = 1;
-          }
-
-          this.$.update.generateRequest();
-
-          let categoryCounter = this.categoryCounter += 1;
+        if (this.categoryCounter < this.categories.length - 1){
+          this.categoryCounter += 1
+          let categoryCounter = this.categoryCounter;
           this.name = this.categories[categoryCounter].name;
           this.categoryid = this.categories[categoryCounter].categoryid;
           this.englishname = this.categories[categoryCounter].englishname;
-          console.log(this.$.categories.selectedValues);
-          console.log(this.picks);
+
+          
+        }
+      },
+      updateResponse: function () {
+        //console.log(this.updateResponse);
+      },
+      _categoriesChanged: function () {
+          if (this.categories != null) {
+            this.name = this.categories[0].name;
+            this.categoryid = this.categories[0].categoryid;
+            this.englishname = this.categories[0].englishname;
+          }
+      },
+
+      _ajaxResponseChanged: function () {
+        
+        /*
+        for (let res in this.ajaxResponse) {
+          let temp = new Object ();
+          temp.shopcategoryid = this.ajaxResponse[res].shopcategoryid;
+          temp.categoryid = this.ajaxResponse[res].categoryid;
+          temp.correct = -1;
+          this.picks.push(temp);
+        }
+        */
+        
+        //console.log(this.picks);
+      },
+
+      continue: function () {
+        if (this.categoryCounter < this.categories.length) {
+            
+          for (let res in this.ajaxResponse) {
+            let temp = new Object ();
+            temp.shopcategoryid = this.ajaxResponse[res].shopcategoryid;
+            temp.categoryid = this.ajaxResponse[res].categoryid;
+            
+            let selectedVals = this.$.categories.selectedValues;
+            if (selectedVals.includes(temp.shopcategoryid)) {
+              temp.correct = 1;
+            } else {
+              temp.correct = -1;
+            }
+            
+            this.picks.push(temp);
+          }
+          
+          this.picksSerialized = JSON.stringify(this.picks);
+          
+          if (this.categoryCounter == this.categories.length - 1) {
+            this.$.continueButton.setAttribute('disabled', 'true');
+          }
+          
+          
+
+          this.$.update.generateRequest();
+          
+          
+
         }
       }
     });
